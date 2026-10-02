@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web Scraping Dashboard — Scrape product data from Books to Scrape with live progress, interactive charts, and CSV export.">
+    <title>Web Scraping Dashboard — Books to Scrape</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- ===== Animated Background Particles ===== -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- ===== Main Container ===== -->
+    <div class="app-container">
+
+        <!-- ===== Header ===== -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-group">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>Web Scraping Dashboard</h1>
+                        <p class="subtitle">Books to Scrape — E-Commerce Data Extractor</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="status-badge" id="statusBadge">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Idle</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== Controls ===== -->
+        <section class="controls-section">
+            <div class="controls-card glass-card">
+                <div class="controls-info">
+                    <h2>Scraper Controls</h2>
+                    <p>Scrape books across 50 pages from <a href="https://books.toscrape.com/" target="_blank" rel="noopener">books.toscrape.com</a></p>
+                </div>
+                <div class="controls-buttons">
+                    <button class="btn btn-primary" id="btnStart" onclick="startScraper()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                        Start Scraping
+                    </button>
+                    <button class="btn btn-danger" id="btnStop" onclick="stopScraper()" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                        Stop
+                    </button>
+                    <button class="btn btn-secondary" id="btnDownload" onclick="downloadCSV()" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download CSV
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Progress ===== -->
+        <section class="progress-section" id="progressSection" style="display:none;">
+            <div class="glass-card">
+                <div class="progress-header">
+                    <h2>Progress</h2>
+                    <span class="progress-label" id="progressLabel">0 / 50 pages</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statProducts">0</span>
+                        <span class="stat-label">Products</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statPages">0</span>
+                        <span class="stat-label">Pages</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statTime">0s</span>
+                        <span class="stat-label">Elapsed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="statRate">0</span>
+                        <span class="stat-label">Products/sec</span>
+                    </div>
+                </div>
+                <!-- Live Log -->
+                <div class="live-log" id="liveLog">
+                    <div class="log-entry log-info">Waiting to start...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Stats Cards ===== -->
+        <section class="stats-section" id="statsSection" style="display:none;">
+            <div class="stats-grid">
+                <div class="stat-card glass-card stat-gradient-1">
+                    <div class="stat-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
+                    </div>
+                    <div class="stat-card-data">
+                        <span class="stat-card-value" id="cardTotal">—</span>
+                        <span class="stat-card-label">Total Products</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card stat-gradient-2">
+                    <div class="stat-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div class="stat-card-data">
+                        <span class="stat-card-value" id="cardAvgPrice">—</span>
+                        <span class="stat-card-label">Avg Price (INR)</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card stat-gradient-3">
+                    <div class="stat-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                    </div>
+                    <div class="stat-card-data">
+                        <span class="stat-card-value" id="cardAvgRating">—</span>
+                        <span class="stat-card-label">Avg Rating</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card stat-gradient-4">
+                    <div class="stat-card-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+                    </div>
+                    <div class="stat-card-data">
+                        <span class="stat-card-value" id="cardPriceRange">—</span>
+                        <span class="stat-card-label">Price Range</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Charts ===== -->
+        <section class="charts-section" id="chartsSection" style="display:none;">
+            <div class="charts-grid">
+                <div class="glass-card chart-card">
+                    <h3>Rating Distribution</h3>
+                    <div class="chart-container" id="ratingChart"></div>
+                </div>
+                <div class="glass-card chart-card">
+                    <h3>Price Distribution</h3>
+                    <div class="chart-container" id="priceChart"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Data Table ===== -->
+        <section class="table-section" id="tableSection" style="display:none;">
+            <div class="glass-card">
+                <div class="table-header">
+                    <h2>Scraped Products</h2>
+                    <div class="table-controls">
+                        <div class="search-box">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="searchInput" placeholder="Search products..." oninput="filterTable()">
+                        </div>
+                        <select id="ratingFilter" onchange="filterTable()">
+                            <option value="all">All Ratings</option>
+                            <option value="5">★★★★★ (5)</option>
+                            <option value="4">★★★★☆ (4)</option>
+                            <option value="3">★★★☆☆ (3)</option>
+                            <option value="2">★★☆☆☆ (2)</option>
+                            <option value="1">★☆☆☆☆ (1)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">#</th>
+                                <th onclick="sortTable(1)">Product Name</th>
+                                <th onclick="sortTable(2)">Price (INR)</th>
+                                <th onclick="sortTable(3)">Rating</th>
+                                <th onclick="sortTable(4)">Availability</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer">
+                    <span id="tableCount">0 products</span>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
